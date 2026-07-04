@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Match Fit">
+<meta name="theme-color" content="#0F6E56">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMTgwIDE4MCI+PHJlY3Qgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxODAiIHJ4PSI0MCIgZmlsbD0iIzBGNkU1NiIvPjxjaXJjbGUgY3g9IjkwIiBjeT0iOTAiIHI9IjQ4IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iNCIgb3BhY2l0eT0iMC41Ii8+PHBhdGggZD0iTTkwIDUyIEw5OSA3OCBMMTI2IDc4IEwxMDQgOTQgTDExMyAxMjAgTDkwIDEwNCBMNjcgMTIwIEw3NiA5NCBMNTQgNzggTDgxIDc4IFoiIGZpbGw9IiNFRjlGMjciLz48L3N2Zz4=">
+<title>Match Fit</title>
+<style>
+:root{
+  --surface-0:#F1EFE8; --surface-1:#E7E4DA; --surface-2:#FBFAF6;
+  --border:rgba(0,0,0,0.10); --border-strong:rgba(0,0,0,0.18);
+  --text-primary:#26251F; --text-secondary:#5F5E5A; --text-muted:#8A887F;
+  --text-accent:#185FA5; --border-accent:#85B7EB;
+  --text-success:#0F6E56; --bg-success:#E1F5EE;
+  --text-warning:#854F0B; --bg-warning:#FAEEDA;
+  --radius:8px; --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --surface-0:#1A1917; --surface-1:#26251F; --surface-2:#302E27;
+    --border:rgba(255,255,255,0.12); --border-strong:rgba(255,255,255,0.22);
+    --text-primary:#F1EFE8; --text-secondary:#B4B2A9; --text-muted:#888780;
+    --text-accent:#85B7EB; --border-accent:#378ADD;
+    --text-success:#5DCAA5; --bg-success:#0F3D31;
+    --text-warning:#EF9F27; --bg-warning:#3D2E12;
+  }
+}
+*{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body{ margin:0; padding:0; background:var(--surface-0); color:var(--text-primary); font-family:var(--font-sans); }
+body{ padding:calc(env(safe-area-inset-top) + 12px) 14px calc(env(safe-area-inset-bottom) + 24px); }
+button,input,select{ font-family:inherit; color:var(--text-primary); }
+button{ background:var(--surface-2); border:0.5px solid var(--border-strong); border-radius:var(--radius); padding:9px 13px; font-size:14px; cursor:pointer; transition:transform 0.1s; }
+button:active{ transform:scale(0.97); }
+input,select{ background:var(--surface-2); border:0.5px solid var(--border-strong); border-radius:var(--radius); padding:8px 10px; font-size:14px; height:36px; }
+h1,h2,h3{ font-weight:500; }
+.sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
+@keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+@keyframes cheer{0%,100%{transform:translateY(0) rotate(0);}25%{transform:translateY(-9px) rotate(-6deg);}75%{transform:translateY(-9px) rotate(6deg);}}
+@keyframes nodhead{0%,100%{transform:rotate(0);}50%{transform:rotate(4deg);}}
+@keyframes pop{0%{transform:scale(1);}45%{transform:scale(1.2);}100%{transform:scale(1);}}
+@keyframes confettiFall{0%{opacity:1;transform:translateY(-8px) rotate(0);}100%{opacity:0;transform:translateY(46px) rotate(220deg);}}
+@keyframes cellpop{0%{transform:scale(0.4);opacity:0;}60%{transform:scale(1.15);}100%{transform:scale(1);opacity:1;}}
+@keyframes floatUp{0%{opacity:0;transform:translateY(0) scale(0.6);}25%{opacity:1;}100%{opacity:0;transform:translateY(-34px) scale(1.1);}}
+.anim-bob{animation:bob 2.6s ease-in-out infinite;}
+.anim-cheer{animation:cheer 0.7s ease-in-out;}
+.anim-nod{animation:nodhead 1.6s ease-in-out infinite;}
+.popped{animation:pop 0.45s ease;}
+.cellpop{animation:cellpop 0.4s ease backwards;}
+#toast{transition:opacity 0.4s,transform 0.4s;}
+.fx{position:absolute;font-size:20px;pointer-events:none;}
+.tiicon{font-style:normal;font-weight:bold;}
+</style>
+</head>
+<body>
+<div id="app" style="max-width:420px;margin:0 auto;">
+
+  <div id="stage" style="position:relative;overflow:hidden;background:#0F6E56;border-radius:14px;padding:16px;margin-bottom:1rem;">
+    <div style="position:absolute;inset:0;opacity:0.18;">
+      <svg width="100%" height="100%" viewBox="0 0 352 118" preserveAspectRatio="none" aria-hidden="true">
+        <line x1="176" y1="0" x2="176" y2="118" stroke="#fff" stroke-width="1"/>
+        <circle cx="176" cy="59" r="25" fill="none" stroke="#fff" stroke-width="1"/>
+        <rect x="0" y="33" width="25" height="52" fill="none" stroke="#fff" stroke-width="1"/>
+        <rect x="327" y="33" width="25" height="52" fill="none" stroke="#fff" stroke-width="1"/>
+      </svg>
+    </div>
+    <div style="position:relative;display:flex;align-items:center;gap:13px;">
+      <div id="charwrap" class="anim-bob" style="flex:0 0 auto;"><div id="charholder"></div></div>
+      <div style="flex:1;">
+        <p id="charname" style="margin:0 0 3px;font-size:12px;color:#9FE1CB;font-weight:500;">Coach Rivera</p>
+        <p id="charline" style="margin:0;font-size:14px;line-height:1.42;color:#E1F5EE;">Ready to train? Get 25 minutes in and today's match fitness is locked.</p>
+      </div>
+    </div>
+    <div id="fxlayer" style="position:absolute;left:16px;top:10px;width:64px;height:64px;pointer-events:none;"></div>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:0.9rem;">
+    <div style="display:flex;align-items:center;gap:9px;">
+      <div id="flame" style="width:40px;height:40px;border-radius:50%;background:var(--bg-warning);display:flex;align-items:center;justify-content:center;">
+        <span style="font-size:20px;">🔥</span>
+      </div>
+      <div>
+        <p style="margin:0;font-size:12px;color:var(--text-secondary);">Match fitness</p>
+        <p style="margin:0;font-size:20px;font-weight:500;"><span id="streak">0</span>-day streak</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px;">
+      <div style="text-align:right;">
+        <p style="margin:0;font-size:12px;color:var(--text-secondary);">👕 Subs</p>
+        <p style="margin:0;font-size:20px;font-weight:500;"><span id="freezes">0</span></p>
+      </div>
+      <div style="text-align:right;padding-left:9px;border-left:0.5px solid var(--border);">
+        <p style="margin:0;font-size:12px;color:var(--text-secondary);" id="divlabel">Sunday league</p>
+        <p style="margin:0;font-size:20px;font-weight:500;"><span id="xp">0</span> XP</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--surface-1);border-radius:var(--radius);height:10px;overflow:hidden;margin-bottom:0.3rem;">
+    <div id="xpbar" style="height:100%;width:0%;background:#1D9E75;border-radius:var(--radius);transition:width 0.5s;"></div>
+  </div>
+  <p id="xphint" style="margin:0 0 1.1rem;font-size:12px;color:var(--text-muted);text-align:right;">0 / 100 XP to League Two</p>
+
+  <div style="background:var(--surface-1);border-radius:var(--radius);padding:0.9rem 1rem;margin-bottom:1.1rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <span style="font-size:14px;color:var(--text-secondary);font-weight:500;">🏃 Today's warm-up floor</span>
+      <span id="floorstate" style="font-size:13px;font-weight:500;color:var(--text-secondary);">0 / 25 min</span>
+    </div>
+    <div style="background:var(--surface-2);border-radius:var(--radius);height:9px;overflow:hidden;">
+      <div id="floorbar" style="height:100%;width:0%;background:var(--text-warning);border-radius:var(--radius);transition:width 0.5s;"></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-bottom:1.1rem;">
+    <div style="background:var(--surface-1);border-radius:var(--radius);padding:0.85rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
+        <span style="font-size:13px;color:var(--text-secondary);">❤️ Cardio</span>
+        <span style="font-size:13px;font-weight:500;"><span id="cardnow">0</span>m</span>
+      </div>
+      <div style="background:var(--surface-2);border-radius:var(--radius);height:8px;overflow:hidden;"><div id="cardbar" style="height:100%;width:0%;background:#1D9E75;transition:width 0.5s;"></div></div>
+      <p id="cardtier" style="margin:6px 0 0;font-size:11px;color:var(--text-muted);">Match pace 25m · hour = MOTM</p>
+    </div>
+    <div style="background:var(--surface-1);border-radius:var(--radius);padding:0.85rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
+        <span style="font-size:13px;color:var(--text-secondary);">🏋️ Strength</span>
+        <span style="font-size:13px;font-weight:500;"><span id="resnow">0</span>m</span>
+      </div>
+      <div style="background:var(--surface-2);border-radius:var(--radius);height:8px;overflow:hidden;"><div id="resbar" style="height:100%;width:0%;background:#534AB7;transition:width 0.5s;"></div></div>
+      <p id="restier" style="margin:6px 0 0;font-size:11px;color:var(--text-muted);">Gym day 25m · hour = MOTM</p>
+    </div>
+  </div>
+
+  <p style="margin:0 0 10px;font-size:13px;color:var(--text-secondary);font-weight:500;">Log training</p>
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:0.8rem;">
+    <button class="qbtn" data-t="cardio" data-m="25" style="justify-content:flex-start;gap:7px;padding:12px;font-size:14px;">❤️ Cardio 25m</button>
+    <button class="qbtn" data-t="resistance" data-m="25" style="justify-content:flex-start;gap:7px;padding:12px;font-size:14px;">🏋️ Strength 25m</button>
+    <button class="qbtn" data-t="yoga" data-m="30" style="justify-content:flex-start;gap:7px;padding:12px;font-size:14px;">🧘 Yoga 30m</button>
+    <button class="qbtn" data-t="cardio" data-m="10" style="justify-content:flex-start;gap:7px;padding:12px;font-size:14px;">⚽ Kickabout 10m</button>
+  </div>
+
+  <details style="margin-bottom:1.1rem;">
+    <summary style="cursor:pointer;font-size:13px;color:var(--text-accent);">Log a custom amount</summary>
+    <div style="display:flex;gap:8px;margin-top:12px;align-items:flex-end;flex-wrap:wrap;">
+      <div style="flex:1.4;min-width:110px;"><label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">Type</label>
+        <select id="ctype" style="width:100%;"><option value="cardio">Cardio</option><option value="resistance">Strength</option><option value="yoga">Yoga</option></select></div>
+      <div style="flex:1;min-width:64px;"><label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">Minutes</label>
+        <input id="cmin" type="number" min="1" step="1" value="30" style="width:100%;" /></div>
+      <button id="cadd">Log</button>
+    </div>
+  </details>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+    <span style="font-size:13px;color:var(--text-secondary);font-weight:500;">📅 Your 30-day chain</span>
+    <span id="monthcount" style="font-size:12px;color:var(--text-muted);">0 of 30 kept</span>
+  </div>
+  <div id="calendar" style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:0.6rem;"></div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1.1rem;">
+    <span style="font-size:11px;color:var(--text-muted);"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#1D9E75;vertical-align:-1px;margin-right:3px;"></span>Kept</span>
+    <span style="font-size:11px;color:var(--text-muted);"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#EF9F27;vertical-align:-1px;margin-right:3px;"></span>MOTM</span>
+    <span style="font-size:11px;color:var(--text-muted);"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#85B7EB;vertical-align:-1px;margin-right:3px;"></span>Freeze</span>
+    <span style="font-size:11px;color:var(--text-muted);"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--surface-1);border:0.5px solid var(--border-strong);vertical-align:-1px;margin-right:3px;"></span>Missed</span>
+  </div>
+
+  <p style="margin:0 0 10px;font-size:13px;color:var(--text-secondary);font-weight:500;">This training week</p>
+  <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:1.1rem;">
+    <div style="display:flex;align-items:center;gap:9px;">
+      <span style="font-size:13px;width:86px;color:var(--text-secondary);">❤️ Cardio</span>
+      <div style="flex:1;background:var(--surface-1);border-radius:var(--radius);height:9px;overflow:hidden;"><div id="wkcard" style="height:100%;width:0%;background:#1D9E75;transition:width 0.5s;"></div></div>
+      <span style="font-size:12px;font-weight:500;width:34px;text-align:right;"><span id="wkcardn">0</span>/7</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px;">
+      <span style="font-size:13px;width:86px;color:var(--text-secondary);">🏋️ Strength</span>
+      <div style="flex:1;background:var(--surface-1);border-radius:var(--radius);height:9px;overflow:hidden;"><div id="wkres" style="height:100%;width:0%;background:#534AB7;transition:width 0.5s;"></div></div>
+      <span style="font-size:12px;font-weight:500;width:34px;text-align:right;"><span id="wkresn">0</span>/5</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px;">
+      <span style="font-size:13px;width:86px;color:var(--text-secondary);">🧘 Yoga</span>
+      <div style="flex:1;background:var(--surface-1);border-radius:var(--radius);height:9px;overflow:hidden;"><div id="wkyoga" style="height:100%;width:0%;background:#D4537E;transition:width 0.5s;"></div></div>
+      <span style="font-size:12px;font-weight:500;width:34px;text-align:right;"><span id="wkyogan">0</span>/3</span>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+    <label style="font-size:13px;color:var(--text-secondary);">🔊 Sound cues</label>
+    <button id="soundtoggle" style="font-size:13px;padding:6px 14px;">On</button>
+  </div>
+
+  <div style="margin-bottom:1rem;">
+    <button id="endday" style="width:100%;font-size:13px;border-color:var(--border-accent);color:var(--text-accent);">📋 Today's box score</button>
+  </div>
+
+  <div id="boxscore" style="display:none;margin-bottom:1rem;"></div>
+
+  <button id="reset" style="width:100%;font-size:12px;color:var(--text-muted);margin-bottom:0.5rem;">Reset all progress</button>
+
+  <div id="toast" style="opacity:0;transform:translateY(8px);pointer-events:none;margin-top:0.5rem;background:var(--bg-success);border-radius:var(--radius);padding:11px 14px;font-size:14px;color:var(--text-success);font-weight:500;text-align:center;"></div>
+
+</div>
+
+<script>
+(function(){
+  var KEY="matchFit_v2";
+  var def={streak:0,xp:0,freezes:0,daysBanked:0,cardio:0,resistance:0,yoga:0,log:[],week:{cardio:0,resistance:0,yoga:0},floorMet:false,sound:true,history:[],bestStreak:0,startDate:null,lastDate:null,weekAnchor:null};
+  var s; try{ s=Object.assign({},def,JSON.parse(localStorage.getItem(KEY)||"{}")); }catch(e){ s=Object.assign({},def); }
+  var FLOOR=25,CG=25,CB=60,RG=25,RB=60,YG=30;
+
+  function todayKey(){ var d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
+  function dateFromKey(k){ var p=k.split("-"); return new Date(+p[0],+p[1]-1,+p[2]); }
+  function daysBetween(a,b){ return Math.round((dateFromKey(b)-dateFromKey(a))/86400000); }
+  function currentDayNum(){ if(!s.startDate) return 1; return daysBetween(s.startDate, todayKey())+1; }
+  var divs=["Sunday league","League Two","League One","Championship","Premier League","Champions League","World Cup"];
+  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(s)); }catch(e){} }
+  function $(id){ return document.getElementById(id); }
+  function pct(n,d){ return Math.min(100,Math.round((n/d)*100)); }
+  function xpFor(l){ return l*100; }
+  function lvlInfo(){ var l=1,r=s.xp; while(r>=xpFor(l)){ r-=xpFor(l); l++; } return {level:l,into:r,need:xpFor(l)}; }
+
+  var chars={
+    rivera:{name:"Coach Rivera",svg:coachSVG()},
+    kofi:{name:"Kofi",svg:playerSVG()},
+    nan:{name:"Assistant Nan",svg:nanSVG()},
+    ref:{name:"The Ref",svg:refSVG()}
+  };
+  function coachSVG(){return '<svg width="60" height="60" viewBox="0 0 58 58" role="img" aria-label="Coach Rivera"><rect x="15" y="40" width="28" height="16" rx="8" fill="#2C2C2A"/><ellipse cx="29" cy="30" rx="13" ry="12.5" fill="#E8B98A"/><path d="M15 26 Q29 10 43 26 L43 22 Q29 6 15 22 Z" fill="#2C2C2A"/><rect x="16" y="22" width="26" height="5" rx="2.5" fill="#C0392B"/><rect x="26" y="17" width="6" height="6" rx="1.5" fill="#C0392B"/><circle cx="24" cy="30" r="2" fill="#2C2C2A"/><circle cx="34" cy="30" r="2" fill="#2C2C2A"/><path d="M24 37 Q29 41 34 37" stroke="#7A4A22" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="20" cy="34" r="2.4" fill="#E88" opacity="0.5"/><circle cx="38" cy="34" r="2.4" fill="#E88" opacity="0.5"/></svg>';}
+  function playerSVG(){return '<svg width="60" height="60" viewBox="0 0 58 58" role="img" aria-label="Kofi"><rect x="17" y="40" width="24" height="12" rx="4" fill="#1D9E75"/><rect x="14" y="34" width="30" height="12" rx="6" fill="#EF9F27"/><ellipse cx="29" cy="26" rx="12.5" ry="12" fill="#6B4226"/><path d="M17 22 Q29 12 41 22 L41 20 Q29 13 17 20 Z" fill="#2C2C2A"/><circle cx="24" cy="27" r="2" fill="#fff"/><circle cx="34" cy="27" r="2" fill="#fff"/><circle cx="24" cy="27" r="1" fill="#2C2C2A"/><circle cx="34" cy="27" r="1" fill="#2C2C2A"/><path d="M23 32 Q29 39 35 32" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><rect x="16" y="20" width="26" height="4" rx="2" fill="#D4537E"/></svg>';}
+  function nanSVG(){return '<svg width="60" height="60" viewBox="0 0 58 58" role="img" aria-label="Assistant Nan"><rect x="16" y="40" width="26" height="14" rx="7" fill="#7F77DD"/><ellipse cx="29" cy="28" rx="12.5" ry="12" fill="#D9A878"/><path d="M16 26 Q16 12 29 12 Q42 12 42 26 Q42 20 29 19 Q16 20 16 26Z" fill="#D3D1C7"/><circle cx="24" cy="28" r="2" fill="#2C2C2A"/><circle cx="34" cy="28" r="2" fill="#2C2C2A"/><path d="M24 34 Q29 37 34 34" stroke="#B07A4A" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="21" cy="32" r="2.2" fill="#E88" opacity="0.45"/><circle cx="37" cy="32" r="2.2" fill="#E88" opacity="0.45"/></svg>';}
+  function refSVG(){return '<svg width="60" height="60" viewBox="0 0 58 58" role="img" aria-label="The Ref"><rect x="16" y="38" width="26" height="16" rx="6" fill="#2C2C2A"/><rect x="27" y="38" width="4" height="16" fill="#F1EFE8"/><ellipse cx="29" cy="27" rx="12" ry="11.5" fill="#C99A6B"/><path d="M18 22 Q29 13 40 22 L40 20 Q29 14 18 20 Z" fill="#5F5E5A"/><circle cx="24" cy="27" r="2" fill="#2C2C2A"/><circle cx="34" cy="27" r="2" fill="#2C2C2A"/><rect x="25" y="32" width="8" height="3" rx="1.5" fill="#EF9F27"/><circle cx="42" cy="33" r="3.5" fill="#EF9F27"/></svg>';}
+
+  var actx=null;
+  function beep(freqs,dur,type){ if(!s.sound) return;
+    try{ if(!actx) actx=new(window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended") actx.resume();
+      var t0=actx.currentTime;
+      freqs.forEach(function(f,i){ var o=actx.createOscillator(),g=actx.createGain(); o.type=type||"sine"; o.frequency.value=f;
+        var st=t0+i*0.09; g.gain.setValueAtTime(0.0001,st); g.gain.exponentialRampToValueAtTime(0.22,st+0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001,st+(dur||0.28)); o.connect(g); g.connect(actx.destination); o.start(st); o.stop(st+(dur||0.28)+0.02); });
+    }catch(e){} }
+  var whistle=function(){beep([1760,2093],0.16,"square");};
+  var goalSnd=function(){beep([392,523,659,784,1047],0.32,"sawtooth");};
+  var ding=function(){beep([659,988],0.22,"sine");};
+  var sad=function(){beep([330,247],0.42,"sine");};
+  var fanfare=function(){beep([523,659,784,1047,1319],0.4,"triangle");};
+
+  var lines={
+    start:["Ready to train? Get 25 minutes in and today's match fitness is locked.","The pitch is calling. 25 minutes keeps you match-fit.","New session, fresh legs. Give me 25 and we're rolling."],
+    near:["Almost there — REMAIN more minutes and today's in the bag.","Push! Just REMAIN more and your fitness holds.","REMAIN minutes to go. Don't let the run slip."],
+    floor:["Floor cleared. You're match-fit for today.","Streak locked. Fancy going for man of the match?","Warm-up done — now the real work."],
+    both:["Both goals smashed. Starting-XI performance.","Cardio and strength done — you'd walk into any lineup.","Full session complete. Brilliant shift."],
+    motm:["An hour in! Man of the match, no question!","Sixty minutes — world-class! The crowd's chanting your name!","MOTM! That's the stuff of legends!"],
+    saved:["No worries — a sub came off the bench. Streak survives.","Squad depth saved you. Freeze spent, run intact.","Rotation game strong. You keep the streak going."],
+    lost:["Back to zero, but every legend has a comeback. Tomorrow we go again.","We lost the run — pre-season starts now. Rebuild it."]
+  };
+  function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+
+  function recordAt(dayIndex,result){ if(dayIndex>=0 && dayIndex<30) s.history[dayIndex]=result; }
+
+  function rollover(){
+    var today=todayKey();
+    if(!s.startDate){ s.startDate=today; s.lastDate=today; s.weekAnchor=today; save(); return {opened:false}; }
+    if(s.lastDate===today){ return {opened:false}; }
+
+    var gap=daysBetween(s.lastDate, today);
+    if(gap<=0){ return {opened:false}; }
+
+    var summary={brokeOn:null, freezesUsed:0, closedToday:false};
+
+    var lastIdx=daysBetween(s.startDate, s.lastDate);
+    var motm=s.cardio>=CB||s.resistance>=RB;
+    if(s.floorMet){ recordAt(lastIdx, motm?"motm":"kept"); summary.closedToday=true; }
+    else {
+      if(s.freezes>0){ s.freezes--; summary.freezesUsed++; recordAt(lastIdx,"freeze"); }
+      else { s.streak=0; s.daysBanked=0; recordAt(lastIdx,"missed"); summary.brokeOn=s.lastDate; }
+    }
+
+    for(var g=1; g<gap; g++){
+      var missDate=new Date(dateFromKey(s.lastDate).getTime()+g*86400000);
+      var mk=missDate.getFullYear()+"-"+(missDate.getMonth()+1)+"-"+missDate.getDate();
+      var idx=daysBetween(s.startDate, mk);
+      if(s.freezes>0){ s.freezes--; summary.freezesUsed++; recordAt(idx,"freeze"); }
+      else { if(s.streak>0) summary.brokeOn=mk; s.streak=0; s.daysBanked=0; recordAt(idx,"missed"); }
+    }
+
+    s.cardio=0; s.resistance=0; s.yoga=0; s.log=[]; s.floorMet=false;
+    if(s.weekAnchor && daysBetween(s.weekAnchor, today)>=7){
+      var wk=daysBetween(s.weekAnchor, today);
+      var weeks=Math.floor(wk/7);
+      var na=new Date(dateFromKey(s.weekAnchor).getTime()+weeks*7*86400000);
+      s.weekAnchor=na.getFullYear()+"-"+(na.getMonth()+1)+"-"+na.getDate();
+      s.week={cardio:0,resistance:0,yoga:0};
+    }
+    s.lastDate=today; save();
+    return {opened:true, summary:summary};
+  }
+
+  function setChar(key,anim,remainOrKey){
+    var c=chars[key]; $("charholder").innerHTML=c.svg; $("charname").textContent=c.name;
+    var lk=typeof remainOrKey==="string"?remainOrKey:"start"; var t=pick(lines[lk]);
+    if(typeof remainOrKey==="number") t=t.replace(/REMAIN/g,remainOrKey);
+    $("charline").textContent=t;
+    var w=$("charwrap"); w.className=""; void w.offsetWidth;
+    w.className=anim==="cheer"?"anim-cheer":anim==="nod"?"anim-nod":"anim-bob";
+  }
+  function fx(kind){
+    var layer=$("fxlayer"); if(!layer) return;
+    if(kind==="confetti"){ var cols=["#EF9F27","#1D9E75","#D4537E","#378ADD","#fff"];
+      for(var i=0;i<14;i++){ var d=document.createElement("div"); d.style.position="absolute"; d.style.width="6px"; d.style.height="9px";
+        d.style.left=(6+Math.random()*52)+"px"; d.style.top="0px"; d.style.background=cols[i%cols.length]; d.style.borderRadius="1px";
+        d.style.animation="confettiFall "+(0.9+Math.random()*0.7)+"s ease-in forwards"; d.style.animationDelay=(Math.random()*0.3)+"s";
+        layer.appendChild(d); setTimeout(function(el){return function(){el.remove();};}(d),1900); } }
+    else { var e=document.createElement("div"); e.className="fx"; e.textContent=kind==="ball"?"⚽":kind==="star"?"⭐":"✨";
+      e.style.left=(14+Math.random()*30)+"px"; e.style.top="18px"; e.style.animation="floatUp 1.1s ease-out forwards";
+      layer.appendChild(e); setTimeout(function(){ e.remove(); },1200); }
+  }
+  function toast(msg,bad){ var t=$("toast"); t.textContent=msg;
+    t.style.background=bad?"var(--bg-warning)":"var(--bg-success)"; t.style.color=bad?"var(--text-warning)":"var(--text-success)";
+    t.style.opacity="1"; t.style.transform="translateY(0)"; clearTimeout(t._t);
+    t._t=setTimeout(function(){ t.style.opacity="0"; t.style.transform="translateY(8px)"; },2600); }
+  function bump(id){ var e=$(id); e.classList.remove("popped"); void e.offsetWidth; e.classList.add("popped"); }
+
+  function buildCalendar(){
+    var cal=$("calendar"); cal.innerHTML=""; var kept=0;
+    var todayIdx=currentDayNum()-1;
+    for(var i=0;i<30;i++){
+      var day=i+1; var rec=s.history[i];
+      if(i===todayIdx && !rec && s.floorMet){ rec=(s.cardio>=CB||s.resistance>=RB)?"motm":"kept"; }
+      var cell=document.createElement("div");
+      cell.style.aspectRatio="1"; cell.style.borderRadius="6px"; cell.style.display="flex";
+      cell.style.alignItems="center"; cell.style.justifyContent="center"; cell.style.fontSize="13px"; cell.style.position="relative";
+      var isToday=day===currentDayNum();
+      if(rec==="motm"){ cell.style.background="#EF9F27"; cell.textContent="⭐"; kept++; }
+      else if(rec==="kept"){ cell.style.background="#1D9E75"; cell.innerHTML='<span style="color:#fff;font-weight:bold;">✓</span>'; kept++; }
+      else if(rec==="freeze"){ cell.style.background="#85B7EB"; cell.textContent="❄️"; kept++; }
+      else if(rec==="missed"){ cell.style.background="var(--surface-1)"; cell.style.border="0.5px solid var(--border-strong)"; cell.innerHTML='<span style="color:var(--text-muted);">✕</span>'; }
+      else { cell.style.background="var(--surface-1)"; cell.style.border="0.5px dashed var(--border)"; cell.innerHTML='<span style="color:var(--text-muted);font-size:11px;">'+day+'</span>'; }
+      if(isToday&&!rec){ cell.style.border="2px solid var(--text-warning)"; }
+      if(rec){ cell.classList.add("cellpop"); cell.style.animationDelay=(i*0.012)+"s"; }
+      cal.appendChild(cell);
+    }
+    $("monthcount").textContent=kept+" of 30 kept";
+  }
+
+  function render(){
+    var li=lvlInfo();
+    $("streak").textContent=s.streak; $("freezes").textContent=s.freezes; $("xp").textContent=s.xp;
+    var dv=Math.min(li.level-1,divs.length-1); $("divlabel").textContent=divs[dv];
+    $("xpbar").style.width=pct(li.into,li.need)+"%"; $("xphint").textContent=li.into+" / "+li.need+" XP to "+divs[Math.min(dv+1,divs.length-1)];
+    var total=s.cardio+s.resistance+s.yoga;
+    if(s.floorMet){ $("floorstate").textContent="Match-fit ✓"; $("floorstate").style.color="var(--text-success)"; $("floorbar").style.background="var(--text-success)"; }
+    else { $("floorstate").textContent=Math.min(total,FLOOR)+" / "+FLOOR+" min"; $("floorstate").style.color="var(--text-secondary)"; $("floorbar").style.background="var(--text-warning)"; }
+    $("floorbar").style.width=pct(total,FLOOR)+"%";
+    $("cardnow").textContent=s.cardio; $("resnow").textContent=s.resistance;
+    $("cardbar").style.width=pct(s.cardio,CB)+"%"; $("resbar").style.width=pct(s.resistance,RB)+"%";
+    $("cardtier").textContent=s.cardio>=CB?"Man of the match ★":(s.cardio>=CG?"Match pace hit ✓ · hour = MOTM":"Match pace 25m · hour = MOTM");
+    $("cardtier").style.color=s.cardio>=CG?"var(--text-success)":"var(--text-muted)";
+    $("restier").textContent=s.resistance>=RB?"Man of the match ★":(s.resistance>=RG?"Gym day hit ✓ · hour = MOTM":"Gym day 25m · hour = MOTM");
+    $("restier").style.color=s.resistance>=RG?"var(--text-success)":"var(--text-muted)";
+    $("wkcardn").textContent=s.week.cardio; $("wkcard").style.width=pct(s.week.cardio,7)+"%";
+    $("wkresn").textContent=s.week.resistance; $("wkres").style.width=pct(s.week.resistance,5)+"%";
+    $("wkyogan").textContent=s.week.yoga; $("wkyoga").style.width=pct(s.week.yoga,3)+"%";
+    $("soundtoggle").textContent=s.sound?"On":"Off";
+    buildCalendar(); save();
+  }
+
+  function log(type,min){
+    min=Math.max(0,Math.round(min)); if(min<=0) return;
+    var xp=min,hit=null;
+    if(type==="cardio"){ var b=s.cardio; s.cardio+=min; if(b<CG&&s.cardio>=CG){xp+=20;hit="goal";} if(b<CB&&s.cardio>=CB){xp+=40;hit="motm";} }
+    else if(type==="resistance"){ var b2=s.resistance; s.resistance+=min; if(b2<RG&&s.resistance>=RG){xp+=20;hit="goal";} if(b2<RB&&s.resistance>=RB){xp+=40;hit="motm";} }
+    else { var b3=s.yoga; s.yoga+=min; if(b3<YG&&s.yoga>=YG){xp+=15;hit="goal";} }
+    if(!s.log.some(function(l){return l.t===type;})){ if(type==="cardio")s.week.cardio++; if(type==="resistance")s.week.resistance++; if(type==="yoga")s.week.yoga++; }
+    s.log.push({t:type,m:min}); s.xp+=xp;
+    var total=s.cardio+s.resistance+s.yoga,floorJust=false;
+    if(!s.floorMet&&total>=FLOOR){ s.floorMet=true; floorJust=true; s.streak+=1; s.xp+=10; s.daysBanked+=1;
+      if(s.streak>s.bestStreak) s.bestStreak=s.streak;
+      if(s.daysBanked>=3&&s.freezes<2){ s.freezes++; s.daysBanked=0; } }
+    bump("flame");
+    if(hit==="motm"){ goalSnd(); setChar("kofi","cheer","motm"); fx("confetti"); toast("Man of the match! +"+xp+" XP"); }
+    else if(hit==="goal"&&s.cardio>=CG&&s.resistance>=RG){ goalSnd(); setChar("kofi","cheer","both"); fx("star"); toast("+"+xp+" XP · goals complete"); }
+    else if(hit==="goal"){ ding(); setChar("rivera","cheer","floor"); fx("ball"); toast("Goal reached! +"+xp+" XP"); }
+    else if(floorJust){ whistle(); setChar("rivera","cheer","floor"); fx("ball"); toast("Match fitness locked · +"+xp+" XP"); }
+    else { ding(); var rem=FLOOR-total; setChar("nan","nod",rem>0?rem:"start"); fx("spark"); toast("+"+xp+" XP logged"); }
+    render();
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll(".qbtn"),function(b){ b.addEventListener("click",function(){ log(b.dataset.t,+b.dataset.m); }); });
+  $("cadd").addEventListener("click",function(){ log($("ctype").value,+$("cmin").value||0); });
+
+  function grade(){
+    var motm=s.cardio>=CB||s.resistance>=RB; var both=s.cardio>=CG&&s.resistance>=RG;
+    if(motm) return {label:"Man of the Match",color:"#EF9F27",rating:"9.4"};
+    if(both) return {label:"Starting XI",color:"#1D9E75",rating:"8.1"};
+    if(s.floorMet) return {label:"Squad Rotation",color:"#378ADD",rating:"7.0"};
+    return {label:"Benched",color:"#888780",rating:"5.5"};
+  }
+  function todayXP(){ var x=0; s.log.forEach(function(l){ x+=l.m; });
+    if(s.cardio>=CG)x+=20; if(s.cardio>=CB)x+=40; if(s.resistance>=RG)x+=20; if(s.resistance>=RB)x+=40; if(s.yoga>=YG)x+=15; if(s.floorMet)x+=10; return x; }
+  function statCell(label,val,color){ return '<div style="background:var(--surface-1);border-radius:8px;padding:10px 6px;text-align:center;"><p style="margin:0;font-size:19px;font-weight:500;color:'+color+';">'+val+'</p><p style="margin:2px 0 0;font-size:11px;color:var(--text-secondary);">'+label+'</p></div>'; }
+  function boxrow(k,v){ return '<tr><td style="padding:7px 0;color:var(--text-secondary);border-bottom:0.5px solid var(--border);">'+k+'</td><td style="padding:7px 0;text-align:right;font-weight:500;border-bottom:0.5px solid var(--border);">'+v+'</td></tr>'; }
+
+  function showBoxScore(){
+    var g=grade(); var totalMin=s.cardio+s.resistance+s.yoga; var sessions=s.log.length;
+    var el=$("boxscore"); el.style.display="block";
+    el.innerHTML='<div style="background:var(--surface-2);border:0.5px solid var(--border);border-radius:14px;overflow:hidden;">'+
+      '<div style="background:#0F6E56;padding:14px;display:flex;align-items:center;justify-content:space-between;">'+
+        '<div><p style="margin:0;font-size:12px;color:#9FE1CB;">Match report · Day '+currentDayNum()+'</p><p style="margin:2px 0 0;font-size:17px;font-weight:500;color:#fff;">'+g.label+'</p></div>'+
+        '<div style="text-align:center;background:'+g.color+';border-radius:8px;padding:7px 12px;"><p style="margin:0;font-size:10px;color:#2C2C2A;">RATING</p><p style="margin:0;font-size:21px;font-weight:500;color:#2C2C2A;">'+g.rating+'</p></div>'+
+      '</div><div style="padding:14px;">'+
+        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:13px;">'+
+          statCell("Cardio",s.cardio+"m",s.cardio>=CB?"#EF9F27":s.cardio>=CG?"#1D9E75":"var(--text-secondary)")+
+          statCell("Strength",s.resistance+"m",s.resistance>=RB?"#EF9F27":s.resistance>=RG?"#1D9E75":"var(--text-secondary)")+
+          statCell("Yoga",s.yoga+"m",s.yoga>=YG?"#1D9E75":"var(--text-secondary)")+
+        '</div><table style="width:100%;font-size:13px;border-collapse:collapse;">'+
+          boxrow("Total minutes",totalMin+"m")+boxrow("Sessions logged",""+sessions)+boxrow("XP earned today","+"+todayXP())+
+          boxrow("Current streak",s.streak+" days 🔥")+boxrow("Best streak",s.bestStreak+" days")+boxrow("Division",divs[Math.min(lvlInfo().level-1,divs.length-1)])+
+        '</table>'+
+        '<p style="margin:13px 0 0;font-size:12px;color:var(--text-secondary);text-align:center;line-height:1.5;">This day locks in automatically at midnight.<br>Keep training to raise your rating.</p>'+
+        '<p style="margin:8px 0 0;font-size:11px;color:var(--text-muted);text-align:center;">📸 Screenshot this card to share your match report</p>'+
+      '</div></div>';
+    fanfare(); setChar("kofi","cheer","both");
+    el.scrollIntoView({behavior:"smooth",block:"center"});
+  }
+  $("endday").addEventListener("click",showBoxScore);
+  $("soundtoggle").addEventListener("click",function(){ s.sound=!s.sound;
+    if(s.sound){ try{ if(!actx) actx=new(window.AudioContext||window.webkitAudioContext)(); actx.resume(); }catch(e){} ding(); } render(); });
+  $("reset").addEventListener("click",function(){
+    if(confirm("Reset all progress? This clears your streak, XP, and 30-day chain.")){ s=Object.assign({},def,{history:[],startDate:todayKey(),lastDate:todayKey(),weekAnchor:todayKey()}); save(); setChar("rivera","bob","start"); render(); }
+  });
+
+  function greetOnOpen(r){
+    if(!r.opened){ setChar("rivera","bob","start"); return; }
+    if(r.summary.brokeOn){ setChar("nan","nod","lost"); toast("Welcome back — the streak reset while you were away.",true); }
+    else if(r.summary.freezesUsed>0){ setChar("ref","bob","saved"); toast("A sub covered your day off — streak still alive.",true); }
+    else { setChar("rivera","bob","start"); }
+  }
+
+  function checkRollover(){
+    if(s.lastDate && s.lastDate!==todayKey()){
+      var r=rollover(); render(); greetOnOpen(r);
+    }
+  }
+
+  var startR=rollover();
+  render();
+  greetOnOpen(startR);
+
+  setInterval(checkRollover, 60000);
+  document.addEventListener("visibilitychange",function(){ if(!document.hidden) checkRollover(); });
+})();
+</script>
+</body>
+</html>
